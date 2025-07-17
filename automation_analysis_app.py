@@ -65,7 +65,15 @@ if uploaded_file:
     st.sidebar.header("🔍 Filters")
     bu_filter = st.sidebar.multiselect("Filter by Business Unit", df['BusinessUnitName'].dropna().unique())
     action_filter = st.sidebar.multiselect("Filter by Suggested Action", df['SuggestedAction'].dropna().unique())
-    scheduled_filter = st.sidebar.multiselect("Filter by Scheduled Frequency (first part only)", df['ScheduleGroup'].dropna().unique())
+    # Scheduled Frequency filter with 'Blank' support
+    df['ScheduleGroupFilter'] = df['ScheduleGroup'].fillna('Blank')
+    schedule_options = df['ScheduleGroupFilter'].unique()
+
+    scheduled_filter = st.sidebar.multiselect(
+        "Filter by Scheduled Frequency (first part only)",
+        options=schedule_options
+)
+
     search = st.sidebar.text_input("Search by Automation Name")
 
     if bu_filter:
@@ -73,7 +81,7 @@ if uploaded_file:
     if action_filter:
         df = df[df['SuggestedAction'].isin(action_filter)]
     if scheduled_filter:
-        df = df[df['ScheduleGroup'].isin(scheduled_filter)]
+        df = df[df['ScheduleGroupFilter'].isin(scheduled_filter)]
     if search:
         df = df[df['AutomationName'].str.contains(search, case=False, na=False)]
 
